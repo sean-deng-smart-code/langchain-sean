@@ -1,7 +1,5 @@
 package org.sean.langchain.core.data.segment;
 
-import org.sean.langchain.core.data.document.Metadata;
-
 import java.util.Objects;
 
 import static org.sean.langchain.core.util.Utils.quoted;

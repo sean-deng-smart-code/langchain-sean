@@ -1,4 +1,4 @@
-package org.sean.langchain.core.data.document;
+package org.sean.langchain.core.data.segment;
 
 import java.util.HashMap;
 import java.util.Map;

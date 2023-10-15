@@ -1,0 +1,84 @@
+package org.sean.langchain.core.document.splitter;
+
+
+import org.sean.langchain.core.document.DocumentSplitter;
+import org.sean.langchain.core.token.Tokenizer;
+
+import static org.sean.langchain.core.util.ValidationUtils.ensureNotNull;
+
+/**
+ * Splits the provided {@link Document} into parts using the provided {@code regex} and attempts to fit as many parts
+ * as possible into a single {@link TextSegment}, adhering to the limit set by {@code maxSegmentSize}.
+ * <p>
+ * The {@code maxSegmentSize} can be defined in terms of characters (default) or tokens.
+ * For token-based limit, a {@link Tokenizer} must be provided.
+ * <p>
+ * If multiple parts fit within {@code maxSegmentSize}, they are joined together using the provided {@code joinDelimiter}.
+ * <p>
+ * If a single part is too long and exceeds {@code maxSegmentSize}, the {@code subSplitter} (which should be provided)
+ * is used to split it into sub-parts and place them into multiple segments.
+ * Such segments contain only the sub-parts of the split long part.
+ * <p>
+ * Each {@link TextSegment} inherits all metadata from the {@link Document} and includes an "index" metadata key
+ * representing its position within the document (starting from 0).
+ */
+public class DocumentByRegexSplitter extends HierarchicalDocumentSplitter {
+
+    private final String regex;
+    private final String joinDelimiter;
+
+    public DocumentByRegexSplitter(String regex,
+                                   String joinDelimiter,
+                                   int maxSegmentSizeInChars,
+                                   int maxOverlapSizeInChars) {
+        super(maxSegmentSizeInChars, maxOverlapSizeInChars, null, null);
+        this.regex = ensureNotNull(regex, "regex");
+        this.joinDelimiter = ensureNotNull(joinDelimiter, "joinDelimiter");
+    }
+
+    public DocumentByRegexSplitter(String regex,
+                                   String joinDelimiter,
+                                   int maxSegmentSizeInChars,
+                                   int maxOverlapSizeInChars,
+                                   DocumentSplitter subSplitter) {
+        super(maxSegmentSizeInChars, maxOverlapSizeInChars, null, subSplitter);
+        this.regex = ensureNotNull(regex, "regex");
+        this.joinDelimiter = ensureNotNull(joinDelimiter, "joinDelimiter");
+    }
+
+    public DocumentByRegexSplitter(String regex,
+                                   String joinDelimiter,
+                                   int maxSegmentSizeInTokens,
+                                   int maxOverlapSizeInTokens,
+                                   Tokenizer tokenizer) {
+        super(maxSegmentSizeInTokens, maxOverlapSizeInTokens, tokenizer, null);
+        this.regex = ensureNotNull(regex, "regex");
+        this.joinDelimiter = ensureNotNull(joinDelimiter, "joinDelimiter");
+    }
+
+    public DocumentByRegexSplitter(String regex,
+                                   String joinDelimiter,
+                                   int maxSegmentSizeInTokens,
+                                   int maxOverlapSizeInTokens,
+                                   Tokenizer tokenizer,
+                                   DocumentSplitter subSplitter) {
+        super(maxSegmentSizeInTokens, maxOverlapSizeInTokens, tokenizer, subSplitter);
+        this.regex = ensureNotNull(regex, "regex");
+        this.joinDelimiter = ensureNotNull(joinDelimiter, "joinDelimiter");
+    }
+
+    @Override
+    public String[] split(String text) {
+        return text.split(regex);
+    }
+
+    @Override
+    public String joinDelimiter() {
+        return joinDelimiter;
+    }
+
+    @Override
+    protected DocumentSplitter defaultSubSplitter() {
+        return null;
+    }
+}
